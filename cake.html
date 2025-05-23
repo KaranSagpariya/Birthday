@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Birthday Celebration | Cut Your Cake!</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        body {
+            background-color: #13111a;
+            background-image: radial-gradient(circle, #3b2b55, #13111a);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            color: #e8d4b5;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            display: none;
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700;
+            top: -20px;
+            opacity: 0;
+        }
+        
+        #landing-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            background: url('/api/placeholder/800/600') center/cover;
+            position: relative;
+            z-index: 1;
+        }
+        
+        #cake-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            color: #ffd700;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+        
+        h2 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        input {
+            padding: 12px 20px;
+            border: 2px solid #ffd700;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+            background-color: rgba(19, 17, 26, 0.7);
+            color: #e8d4b5;
+        }
+        
+        .btn {
+            background-color: #8a2be2;
+            color: #e8d4b5;
+            border: 2px solid #ffd700;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            background-color: #9b30f2;
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-disabled {
+            background-color: #4e3963;
+            border-color: #a08855;
+            cursor: not-allowed;
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        #cake-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+        }
+        
+        #cake-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+        
+        .cake-display {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .candle {
+            width: 10px;
+            height: 40px;
+            background-color: #ffd700;
+            position: absolute;
+            border-radius: 5px;
+            z-index: 3;
+        }
+        
+        .flame {
+            width: 15px;
+            height: 30px;
+            background: radial-gradient(ellipse at bottom, #ffd700, #ff9800);
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -25px;
+            left: -2.5px;
+            transform-origin: center bottom;
+            animation: flicker 0.5s infinite alternate;
+            z-index: 4;
+            box-shadow: 0 0 10px 5px rgba(255, 165, 0, 0.7);
+        }
+        
+        @keyframes flicker {
+            0% { transform: scaleY(1) rotate(-1deg); opacity: 0.9; }
+            50% { transform: scaleY(1.1) rotate(1deg); opacity: 1; }
+            100% { transform: scaleY(0.9) rotate(-1deg); opacity: 0.9; }
+        }
+        
+        .message {
+            margin: 20px 0;
+            color: #ffd700;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .balloon {
+            position: absolute;
+            width: 60px;
+            height: 70px;
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent);
+        }
+        
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 40px;
+            background-color: #e8d4b5;
+        }
+        
+        .balloon:nth-child(1) {
+            background-color: #8a2be2;
+        }
+        
+        .balloon:nth-child(2) {
+            background-color: #ffd700;
+        }
+        
+        .balloon:nth-child(3) {
+            background-color: #ff4500;
+        }
+        
+        .balloon:nth-child(4) {
+            background-color: #4169e1;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .instruction {
+            font-size: 1.2rem;
+            color: #e8d4b5;
+            margin: 15px 0;
+        }
+        
+        .audio-controls {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #volume-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        #snapshot-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        #snapshot-image {
+            max-width: 90%;
+            max-height: 80%;
+            border: 5px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        
+        .snapshot-buttons {
+            margin-top: 20px;
+        }
+        
+        .credit {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #9e9e9e;
+        }
+        
+        /* Royal styling elements */
+        .crown {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            background-color: #ffd700;
+            clip-path: polygon(10% 100%, 30% 60%, 50% 100%, 70% 60%, 90% 100%, 100% 40%, 80% 0%, 60% 20%, 40% 0%, 20% 20%, 0% 0%, 0% 40%);
+            z-index: 5;
+        }
+        
+        .royal-decoration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ffd700;
+            border-radius: 50%;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="confetti" id="confetti-container"></div>
+    
+    <!-- Landing Page -->
+    <div id="landing-page">
+        <h1>Happy Birthday! Cut Your Cake! 🎂</h1>
+        <div class="balloon" style="top: 10%; left: 10%;"></div>
+        <div class="balloon" style="top: 15%; left: 80%;"></div>
+        <div class="balloon" style="top: 70%; left: 20%;"></div>
+        <div class="balloon" style="top: 60%; left: 85%;"></div>
+        
+        <div class="input-group">
+            <input type="text" id="name-input" placeholder="Enter your name...">
+            <button class="btn" id="start-btn">Let's Celebrate! 🎉</button>
+        </div>
+    </div>
+    
+    <!-- Cake Cutting Page -->
+    <div id="cake-page">
+        <h2 id="greeting">Happy Birthday!</h2>
+        
+        <div id="cake-container">
+            <canvas id="cake-canvas" width="400" height="400"></canvas>
+        </div>
+        
+        <div class="message" id="instruction-message">Make a wish and blow out the candles!</div>
+        
+        <div class="buttons-container">
+            <button class="btn" id="blow-candles-btn">Blow Candles 🎂</button>
+            <button class="btn btn-disabled" id="cut-cake-btn" disabled>Cut Cake 🔪</button>
+            <button class="btn" id="reset-btn">Reset Cake 🔄</button>
+            <button class="btn" id="snapshot-btn">Take Snapshot 📸</button>
+        </div>
+        
+        <div class="audio-controls">
+            <span id="volume-icon">🔊</span>
+            <span id="music-status">Birthday Music: ON</span>
+        </div>
+    </div>
+    
+    <!-- Snapshot Modal -->
+    <div id="snapshot-container">
+        <img id="snapshot-image">
+        <div class="snapshot-buttons">
+            <button class="btn" id="download-btn">Download 💾</button>
+            <button class="btn" id="close-snapshot-btn">Close ✖</button>
+        </div>
+    </div>
+
+    <div class="credit">🎂 Birthday Cake Cutter</div>
+    
+    <script>
+        // DOM Elements
+        const landingPage = document.getElementById('landing-page');
+        const cakePage = document.getElementById('cake-page');
+        const nameInput = document.getElementById('name-input');
+        const startBtn = document.getElementById('start-btn');
+        const greeting = document.getElementById('greeting');
+        const cakeCanvas = document.getElementById('cake-canvas');
+        const ctx = cakeCanvas.getContext('2d');
+        const blowCandlesBtn = document.getElementById('blow-candles-btn');
+        const cutCakeBtn = document.getElementById('cut-cake-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const snapshotBtn = document.getElementById('snapshot-btn');
+        const instructionMessage = document.getElementById('instruction-message');
+        const volumeIcon = document.getElementById('volume-icon');
+        const musicStatus = document.getElementById('music-status');
+        const snapshotContainer = document.getElementById('snapshot-container');
+        const snapshotImage = document.getElementById('snapshot-image');
+        const downloadBtn = document.getElementById('download-btn');
+        const closeSnapshotBtn = document.getElementById('close-snapshot-btn');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        // Audio elements
+        const birthdaySong = new Audio('https://cdnjs.cloudflare.com/ajax/libs/HighResJPG/c/birthday-song.mp3');
+        birthdaySong.loop = true;
+        
+        const blowSound = new Audio('https://cdnjs.cloudflare.com/ajax/libs/HighResJPG/c/blow-sound.mp3');
+        const cutSound = new Audio('https://cdnjs.cloudflare.com/ajax/libs/HighResJPG/c/cut-sound.mp3');
+        const celebrationSound = new Audio('https://cdnjs.cloudflare.com/ajax/libs/HighResJPG/c/celebration.mp3');
+        
+        // Since we don't have actual audio files, we'll simulate audio behavior
+        birthdaySong.play = function() { this.isPlaying = true; };
+        birthdaySong.pause = function() { this.isPlaying = false; };
+        blowSound.play = function() {};
+        cutSound.play = function() {};
+        celebrationSound.play = function() {};
+        
+        let isMusicOn = true;
+        
+        // Cake properties
+        const centerX = cakeCanvas.width / 2;
+        const centerY = cakeCanvas.height / 2;
+        const cakeRadius = 150;
+        let candlesLit = true;
+        let candles = [];
+        let cakeSlices = [];
+        let userName = '';
+        let isDrawing = false;
+        let startAngle = 0;
+        let currentAngle = 0;
+        
+        // Initialize the page
+        function init() {
+            // Event listeners
+            startBtn.addEventListener('click', startCelebration);
+            blowCandlesBtn.addEventListener('click', blowOutCandles);
+            cutCakeBtn.addEventListener('click', enableCakeCutting);
+            resetBtn.addEventListener('click', resetCake);
+            snapshotBtn.addEventListener('click', takeSnapshot);
+            cakeCanvas.addEventListener('mousedown', startDrawingSlice);
+            cakeCanvas.addEventListener('mousemove', drawSlice);
+            cakeCanvas.addEventListener('mouseup', endDrawingSlice);
+            cakeCanvas.addEventListener('mouseleave', endDrawingSlice);
+            volumeIcon.addEventListener('click', toggleMusic);
+            closeSnapshotBtn.addEventListener('click', closeSnapshot);
+            downloadBtn.addEventListener('click', downloadSnapshot);
+            
+            // Focus on name input
+            nameInput.focus();
+        }
+        
+        // Start the celebration
+        function startCelebration() {
+            userName = nameInput.value.trim() || 'Friend';
+            greeting.textContent = `Happy Birthday, ${userName}!`;
+            landingPage.style.display = 'none';
+            cakePage.style.display = 'flex';
+            
+            initializeCake();
+            drawCake();
+            
+            // Play birthday song
+            birthdaySong.play();
+        }
+        
+        // Initialize cake and candles
+        function initializeCake() {
+            candles = [];
+            cakeSlices = [];
+            candlesLit = true;
+            
+            // Create candles (evenly spaced around the cake)
+            const numCandles = 8;
+            for (let i = 0; i < numCandles; i++) {
+                const angle = (i / numCandles) * 2 * Math.PI;
+                const candleDistance = cakeRadius * 0.6;
+                const x = centerX + candleDistance * Math.cos(angle);
+                const y = centerY + candleDistance * Math.sin(angle);
+                candles.push({ x, y, lit: true });
+            }
+            
+            // Enable/disable buttons
+            blowCandlesBtn.disabled = false;
+            blowCandlesBtn.classList.remove('btn-disabled');
+            cutCakeBtn.disabled = true;
+            cutCakeBtn.classList.add('btn-disabled');
+            
+            instructionMessage.textContent = "Make a wish and blow out the candles!";
+        }
+        
+        // Draw the cake with candles
+        function drawCake() {
+            // Clear canvas
+            ctx.clearRect(0, 0, cakeCanvas.width, cakeCanvas.height);
+            
+            // Draw cake base (circle)
+            // Note: This section is now handled in the slice removal code above
+            
+            // Draw decorative dots on the icing
+            const numDots = 20;
+            const dotColors = ['#ba68c8', '#64b5f6', '#81c784', '#ffd54f'];
+            
+            for (let i = 0; i < numDots; i++) {
+                const angle = (i / numDots) * 2 * Math.PI;
+                const dotDistance = cakeRadius + 5;
+                const x = centerX + dotDistance * Math.cos(angle);
+                const y = centerY + dotDistance * Math.sin(angle);
+                
+                // Skip dots that fall into removed slices
+                let dotInSlice = false;
+                for (const slice of cakeSlices) {
+                    let start = slice.startAngle;
+                    let end = slice.endAngle;
+                    
+                    // Handle slices that cross the 0 radian line
+                    if (end < start) end += 2 * Math.PI;
+                    
+                    // Normalize angle for comparison
+                    let normalizedAngle = angle;
+                    if (normalizedAngle < start) normalizedAngle += 2 * Math.PI;
+                    
+                    if (normalizedAngle >= start && normalizedAngle <= end) {
+                        dotInSlice = true;
+                        break;
+                    }
+                }
+                
+                if (!dotInSlice) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = dotColors[i % dotColors.length];
+                    ctx.fill();
+                }
+            }
+            
+            // Draw cake with slices removed
+            if (cakeSlices.length > 0) {
+                // Start by drawing slices that will remain (using clip)
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, cakeRadius, 0, Math.PI * 2);
+                
+                // Cut out each slice
+                cakeSlices.forEach(slice => {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, cakeRadius + 5, slice.startAngle, slice.endAngle);
+                    ctx.lineTo(centerX, centerY);
+                    ctx.clip('evenodd');
+                });
+                
+                // Draw the remaining cake (only visible parts not clipped)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, cakeRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ffccbc'; // Light pink/peach cake color
+                ctx.fill();
+                ctx.strokeStyle = '#ff7043';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Draw icing on top (only for remaining cake)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, cakeRadius, 0, 2 * Math.PI);
+                ctx.strokeStyle = '#f48fb1';
+                ctx.lineWidth = 15;
+                ctx.stroke();
+                
+                // Restore context for other drawings
+                ctx.restore();
+                
+                // Draw slice outlines for visibility
+                cakeSlices.forEach(slice => {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, cakeRadius, slice.startAngle, slice.endAngle);
+                    ctx.lineTo(centerX, centerY);
+                    ctx.strokeStyle = '#ff5252';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                });
+            } else {
+                // If no slices, draw the whole cake
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, cakeRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ffccbc'; // Light pink/peach cake color
+                ctx.fill();
+                ctx.strokeStyle = '#ff7043';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Draw icing on top
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, cakeRadius, 0, 2 * Math.PI);
+                ctx.strokeStyle = '#f48fb1';
+                ctx.lineWidth = 15;
+                ctx.stroke();
+            }
+            
+            // Draw "Happy Birthday" on the cake
+            ctx.font = '20px Comic Sans MS';
+            ctx.fillStyle = '#d81b60';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Happy Birthday,`, centerX, centerY - 10);
+            ctx.fillText(`${userName}!`, centerX, centerY + 20);
+            
+            // Draw candles
+            candles.forEach(candle => {
+                // Candle stick
+                ctx.beginPath();
+                ctx.rect(candle.x - 5, candle.y - 25, 10, 25);
+                ctx.fillStyle = '#ff9800';
+                ctx.fill();
+                
+                // Flame (if lit)
+                if (candle.lit && candlesLit) {
+                    ctx.beginPath();
+                    ctx.ellipse(candle.x, candle.y - 35, 7, 12, 0, 0, Math.PI * 2);
+                    
+                    // Create gradient for flame
+                    const flameGradient = ctx.createRadialGradient(
+                        candle.x, candle.y - 35, 0,
+                        candle.x, candle.y - 35, 12
+                    );
+                    flameGradient.addColorStop(0, '#ffeb3b');
+                    flameGradient.addColorStop(1, '#ff9800');
+                    
+                    ctx.fillStyle = flameGradient;
+                    ctx.fill();
+                }
+            });
+            
+            // Draw temporary slice while cutting
+            if (isDrawing) {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, cakeRadius, startAngle, currentAngle);
+                ctx.lineTo(centerX, centerY);
+                ctx.strokeStyle = '#ff8a80';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+        
+        // Blow out candles
+        function blowOutCandles() {
+            candlesLit = false;
+            blowSound.play();
+            
+            // Disable blow button, enable cut button
+            blowCandlesBtn.disabled = true;
+            blowCandlesBtn.classList.add('btn-disabled');
+            cutCakeBtn.disabled = false;
+            cutCakeBtn.classList.remove('btn-disabled');
+            
+            instructionMessage.textContent = "Now you can cut the cake!";
+            
+            // Redraw cake
+            drawCake();
+        }
+        
+        // Enable cake cutting mode
+        function enableCakeCutting() {
+            instructionMessage.textContent = "Click and drag to cut a slice!";
+        }
+        
+        // Start drawing a slice
+        function startDrawingSlice(e) {
+            if (!candlesLit && !cutCakeBtn.disabled) {
+                isDrawing = true;
+                
+                // Calculate angle from center to click position
+                const rect = cakeCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                startAngle = Math.atan2(y - centerY, x - centerX);
+                currentAngle = startAngle;
+                
+                drawCake();
+            }
+        }
+        
+        // Draw the slice while dragging
+        function drawSlice(e) {
+            if (isDrawing) {
+                const rect = cakeCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                currentAngle = Math.atan2(y - centerY, x - centerX);
+                
+                drawCake();
+            }
+        }
+        
+        // Finalize the slice
+        function endDrawingSlice() {
+            if (isDrawing) {
+                isDrawing = false;
+                
+                // Add the slice to the list
+                if (startAngle !== currentAngle) {
+                    // Make sure we're creating a valid slice (not too small)
+                    let angleDiff = Math.abs(currentAngle - startAngle);
+                    // Handle cases where the slice crosses the 0 radian line
+                    if (angleDiff > Math.PI) {
+                        angleDiff = 2 * Math.PI - angleDiff;
+                    }
+                    
+                    // Only add slices that are visible enough (at least 10 degrees)
+                    if (angleDiff > 0.17) { // ~10 degrees
+                        cakeSlices.push({
+                            startAngle: startAngle,
+                            endAngle: currentAngle
+                        });
+                        
+                        cutSound.play();
+                        
+                        // After first slice, show celebration
+                        if (cakeSlices.length === 1) {
+                            showConfetti();
+                            celebrationSound.play();
+                            instructionMessage.textContent = "Yay! Enjoy your slice!";
+                        }
+                        
+                        // If many slices, show different message
+                        if (cakeSlices.length >= 4) {
+                            instructionMessage.textContent = "Plenty of cake for everyone!";
+                        }
+                        
+                        // If most of cake is gone (>70%), show special message
+                        let totalAngleRemoved = 0;
+                        cakeSlices.forEach(slice => {
+                            let sliceAngle = slice.endAngle - slice.startAngle;
+                            // Handle slices that cross the 0 radian line
+                            if (sliceAngle < 0) sliceAngle += 2 * Math.PI;
+                            totalAngleRemoved += sliceAngle;
+                        });
+                        
+                        if (totalAngleRemoved > 1.4 * Math.PI) { // More than 70% gone
+                            instructionMessage.textContent = "Almost all gone! Save some for later!";
+                        }
+                    }
+                }
+                
+                drawCake();
+            }
+        }
+        
+        // Reset the cake
+        function resetCake() {
+            initializeCake();
+            drawCake();
+        }
+        
+        // Take snapshot of the cake
+        function takeSnapshot() {
+            const canvas = document.createElement('canvas');
+            canvas.width = cakeCanvas.width;
+            canvas.height = cakeCanvas.height;
+            const context = canvas.getContext('2d');
+            
+            // Add background
+            context.fillStyle = '#fce4ec';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw cake
+            context.drawImage(cakeCanvas, 0, 0);
+            
+            // Add timestamp and message
+            context.font = '14px Comic Sans MS';
+            context.fillStyle = '#d81b60';
+            context.textAlign = 'right';
+            
+            const date = new Date();
+            context.fillText(`${date.toLocaleDateString()}`, canvas.width - 10, canvas.height - 10);
+            
+            // Get image data URL
+            const imageDataURL = canvas.toDataURL('image/png');
+            snapshotImage.src = imageDataURL;
+            
+            // Show snapshot modal
+            snapshotContainer.style.display = 'flex';
+        }
+        
+        // Close snapshot modal
+        function closeSnapshot() {
+            snapshotContainer.style.display = 'none';
+        }
+        
+        // Download snapshot
+        function downloadSnapshot() {
+            const a = document.createElement('a');
+            a.href = snapshotImage.src;
+            a.download = `birthday-cake-${userName}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // Toggle music
+        function toggleMusic() {
+            isMusicOn = !isMusicOn;
+            
+            if (isMusicOn) {
+                volumeIcon.textContent = '🔊';
+                musicStatus.textContent = 'Birthday Music: ON';
+                birthdaySong.play();
+            } else {
+                volumeIcon.textContent = '🔇';
+                musicStatus.textContent = 'Birthday Music: OFF';
+                birthdaySong.pause();
+            }
+        }
+        
+        // Show confetti animation
+        function showConfetti() {
+            confettiContainer.style.display = 'block';
+            
+            // Create confetti pieces
+            const colors = ['#f48fb1', '#90caf9', '#a5d6a7', '#ffe082', '#ef9a9a', '#b39ddb'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.opacity = Math.random();
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                // Animate falling
+                confetti.animate([
+                    { top: '-20px', transform: `rotate(0deg)`, opacity: 1 },
+                    { top: '100vh', transform: `rotate(${360 + Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 2000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(.55,.06,.68,.19)',
+                    delay: Math.random() * 1000
+                });
+                
+                confettiContainer.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+            
+            // Hide confetti container after some time
+            setTimeout(() => {
+                confettiContainer.style.display = 'none';
+                // Remove all remaining confetti pieces
+                while (confettiContainer.firstChild) {
+                    confettiContainer.removeChild(confettiContainer.firstChild);
+                }
+            }, 6000);
+        }
+        
+        // Initialize the page
+        init();
+    </script>
+</body>
+</html>
